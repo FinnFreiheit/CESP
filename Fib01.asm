@@ -29,15 +29,15 @@ main:
 	#STEP 6: Print the results
 	
 	# ADD YOUR STEP 6 CODE HERE
-	li a0, 1
-	li a2,20
-	li a7,64
+	li a0, 1	#System Call
+	li a2,20	#length
+	li a7,64	#system out (64)
 	ecall
 	
 	#STEP 7: OS Call to exit program
 
 	# ADD YOUR STEP 7 CODE HERE
-	li a7,93
+	li a7,93 	#terminate (93)
 	ecall
 
 # The function fib expects the following arguments
@@ -91,7 +91,8 @@ _fib_for_loop:
 	
 	for_loop_exit: 
 		add zero,zero,zero
-	
+		
+	#Variablen für fib to ASCII
 	li s10,0
 	li s9,20
 	add s8,a1,zero	
