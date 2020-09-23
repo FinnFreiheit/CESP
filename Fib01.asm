@@ -22,7 +22,7 @@ main:
 	
 	# ADD YOUR STEP 2 CODE HERE
 	la a1,fibonacci		#die Adresse von fibonacci[0] in a1 speichern
-	li a2, 2		#a1 = n = 20, Argument bei Funktionsaufruf
+	li a2, 20		#a1 = n = 20, Argument bei Funktionsaufruf
 	jal ra,fib		#jump and link, gehe zum Unterprogramm fib und speicher Ruecksprungadresse in ra.
 	
 	
@@ -52,16 +52,39 @@ fib:
 	
 	exit: 
 		add zero, zero, zero
-	
-
 		
-	
-	
+	li t1,2		# t1 = j = 2	
+	li t2,8 	#j = 2 = 8 Byte
+	li t3,4
 _fib_for_loop:
 	#STEP 4: implement a for loop calculate fibonacci[2] ... fibonacci[n-1] if applicable
-
+	#for(j = 2, j < n,j++)
 	# ADD YOUR STEP 4 CODE HERE
 	
+	bge  t1,a1,for_loop_exit	#Exit for loop when j >= n 
 	
+	add s1, a1,zero
+	add s1, s1, t2 
+	
+	addi t4, s1, -8
+	addi t5, s1, -4
+		
+	lw a4,(t4)
+	lw a5,(t5)
+	
+	add a6,a4,a5	#j
+	
+	sw a6,(s1)
+	
+	
+	
+	addi t2,t2,4 		#j++ Byte
+	addi t3,t3,4		#j++ Byte
+	addi t1,t1,1		#j++ dezi
+	beq zero,zero,_fib_for_loop	#neuer Schleifendurchgang
+	
+	for_loop_exit: 
+		add zero,zero,zero
+		
 _fib_end:
 	#STEP 5: Jump back into main using the address you have saved before
