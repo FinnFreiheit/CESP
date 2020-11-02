@@ -90,22 +90,22 @@ yloop:
 		li s2,0
 		li s3,0
 		
-		#Cr = (X_STRETCH * x / IMAGE_WIDTH - x_START)
+		#Cr = (X_STRETCH * x / IMAGE_WIDTH + x_START)
 		mul s7,a3,s4		# X_STRETCH * X
 		div s7,s7,t2		# / IMAGE_WIDTH
-		sub s7,s7,a1		# - x_START
+		add s7,s7,a1		# + x_START
 		
-		#Ci = (Y_STRETCH * y / IMAGE_HIGHT - y_START
+		#Ci = (Y_STRETCH * y / IMAGE_HIGHT + y_START
 		mul s8,a4,s5		#Y_STRETCH * y
 		div s8,s8,t2		# / IMAGE_HIGHT
-		sub s8,s8,a2		#-Y_START
+		add s8,s8,a2		#+Y_START
 		
 		li s6,0		#iteration = 0
 		iterationLoop:
 			#iteration < MAX_ITERATIONS && (Tr + Ti <= limit * limit)
 
 			#(Tr + Ti <= limit * limit)
-			add t1,s2,s3
+			add t1,s2,s3 	#Tr + t
 			li t3,LIMIT2	
 			bgt t1,t3,plot
 			
