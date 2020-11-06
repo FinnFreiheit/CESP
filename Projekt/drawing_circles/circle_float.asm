@@ -1,13 +1,13 @@
 #
 #  ██████╗███████╗███████╗██████╗     ██╗     ███████╗ ██████╗████████╗██╗   ██╗██████╗ ███████╗
 # ██╔════╝██╔════╝██╔════╝██╔══██╗    ██║     ██╔════╝██╔════╝╚══██╔══╝██║   ██║██╔══██╗██╔════╝
-# ██║     █████╗  ███████╗██████╔╝    ██║     █████╗  ██║        ██║   ██║   ██║██████╔╝█████╗
-# ██║     ██╔══╝  ╚════██║██╔═══╝     ██║     ██╔══╝  ██║        ██║   ██║   ██║██╔══██╗██╔══╝
+# ██║     █████╗  ███████╗██████╔╝    ██║     █████╗  ██║        ██║   ██║   ██║██████╔╝█████╗  
+# ██║     ██╔══╝  ╚════██║██╔═══╝     ██║     ██╔══╝  ██║        ██║   ██║   ██║██╔══██╗██╔══╝  
 #  ██████╗███████╗███████║██║         ███████╗███████╗╚██████╗   ██║   ╚██████╔╝██║  ██║███████╗
 #  ╚═════╝╚══════╝╚══════╝╚═╝         ╚══════╝╚══════╝ ╚═════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝
 #
 # Copyright 2020 Michael J. Klaiber
-
+                                    
 
 ###############################
 #  CESP Programming Project   #
@@ -24,11 +24,30 @@
 .text
 
 
+li a1, 1
+li a2, 1
+li a3, 0x00ff00
+jal draw_pixel
+
+li a1, 254
+li a2, 1
+li a3, 0x00ff00
+jal draw_pixel
+
+li a1, 1
+li a2, 254
+li a3, 0x00ff00
+jal draw_pixel
+
+li a1, 254
+li a2, 254
+li a3, 0x00ff00
+jal draw_pixel
 
 main_float:
 
-
-
+	
+	
 	# Exit
 	li a0, 0
 	li a7, 93
@@ -46,8 +65,8 @@ circle_float:
 	#TODO Task 1.4
 
 sin:
-#Beim Aufrufen dieser Funktion werden alle temp und save Register in den Stack gespeichert. In den Test Dateien findet kein caller save
-#statt, somit muss ein callee save ausgeführt werden.
+#Beim Aufrufen dieser Funktion werden alle temp und save Register in den Stack gespeichert. In den Test Dateien findet kein caller save 
+#statt, somit muss ein callee save ausgeführt werden. 
 
 ## Preserve saved registers: t0-t6 und s0-s11 -> 19 Register -> 19 * 8 =  152
 jal ra,calleSave
@@ -61,14 +80,14 @@ jal ra,calleSave
 
 	#TODO Task 1.1
 	#Die ergebnisse der Sinusberechnungen sind in der asm Datei "sinlut" hinterlegt. Durch .include sinlut.asm im .Data bereich,
-	#werden alle sinusergebniss geladen. Um auf die werte zuzugreifen, wird die Adresse von dem Label .sin_lookup in das Register
-	#gespeichert.
-	la t0,.sin_lookup 	#Adresse von .sin_lookup in t0 speichern
+	#werden alle sinusergebniss geladen. Um auf die werte zuzugreifen, wird die Adresse von dem Label .sin_lookup in das Register 
+	#gespeichert. 
+	la t0,.sin_lookup 	#Adresse von .sin_lookup in t0 speichern 
 	#Alle 4 Bit liegt ein neuer Sin() wert im Datasegment. Somit muss der Wert im Register a1 mit 4 multipliziert werden.
-	#Multiplikation mit 4 ist das selbe wie ein Bitshift um 2 nach links.
+	#Multiplikation mit 4 ist das selbe wie ein Bitshift um 2 nach links. 
 	slli t1,a1,2	#a1 << 2 -> a1 * 4, Speichern in t1
-	#Der Wert an der Adresse wird ins Register a0 gespeichert.
-
+	#Der Wert an der Adresse wird ins Register a0 gespeichert. 
+	
 	#erzeugen der richtigen Adresse
 	add t2,t0,t1
 	lw a0,(t2)
@@ -77,7 +96,7 @@ jal ra,calleSave
 jal ra,calleRestore
 
 cos:
-#Siehe Kommentar calleeSave sin:
+#Siehe Kommentar calleeSave sin: 
 
 # Preserve saved registers: t0-t6 und s0-s11 -> 19 Register -> 19 * 8 =  152
 jal ra,calleSave
@@ -90,15 +109,15 @@ jal ra,calleSave
 # la0: cos(a1)
 
 	#TODO Task 1.2
-
-	la t0,.sin_lookup 	#Adresse von .sin_lookup in t0 speichern
-
+	
+	la t0,.sin_lookup 	#Adresse von .sin_lookup in t0 speichern 
+	
 	#cos(α) = sin(90 − α)
 		li t0,90	#t0 = 90
 		sub t1,t0,a1	#t1 = 90 - α
-
+	 
 	slli t1,t1,2	#a1 << 2 -> a1 * 4, Speichern in t1
-	#Der Wert an der Adresse wird ins Register a0 gespeichert.
+	#Der Wert an der Adresse wird ins Register a0 gespeichert. 
 	add t2,t0,t1
 	lw a0,(t2)
 
@@ -109,7 +128,8 @@ jal ra,calleSave
 
 #############################################
 calleSave:
-	addi sp,sp, -152
+	addi sp,sp, -160
+	sw, ra, 152(sp)
 	sw, t0, 144(sp)
 	sw, t1, 136(sp)
 	sw, t2, 128(sp)
@@ -129,11 +149,11 @@ calleSave:
 	sw, s9, 16(sp)
 	sw, s10, 8(sp)
 	sw, s11, 0(sp)
-
+	
 	jr ra
 
 calleRestore:
-
+	
 	lw, s11, 0(sp)
 	lw, s10, 8(sp)
 	lw, s9, 16(sp)
@@ -153,6 +173,10 @@ calleRestore:
 	lw, t2, 128(sp)
 	lw, t1, 136(sp)
 	lw, t0, 144(sp)
-	addi sp,sp,152
-
+	lw ra,152(sp)
+	addi sp,sp,160
+	
 	jr ra
+	
+	
+	
