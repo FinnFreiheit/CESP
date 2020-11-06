@@ -23,26 +23,11 @@
 
 .text
 
-
-li a1, 1
-li a2, 1
+li a1, 30
+li a2, 30
+li, a4, 19
 li a3, 0x00ff00
-jal draw_pixel
-
-li a1, 254
-li a2, 1
-li a3, 0x00ff00
-jal draw_pixel
-
-li a1, 1
-li a2, 254
-li a3, 0x00ff00
-jal draw_pixel
-
-li a1, 254
-li a2, 254
-li a3, 0x00ff00
-jal draw_pixel
+jal circle_float
 
 main_float:
 
@@ -56,19 +41,108 @@ main_float:
 circle_float:
 # Inputs
 #------------------
-# a1: x coordinate
-# a2: y coordinate
+# a1: xc coordinate
+# a2: yc coordinate
 # a3: color
 # a4: radius in pixels
-
-
 	#TODO Task 1.4
+	jal ra,calleSave
+	
+	li t2,90	#t2 = 90
+	li t1,0 	#Alpha = 0
 
+	#for(int α=0; α≤90;α++)
+	Circle_float_loop:
+		bgt t1,t2,main_float
+		
+		#float x = radius × cos(α)
+		#a1 zwischenspeichern in s11
+		add s11,zero,a1
+		#a1 = t1, für den cos aufruf.
+		add a1,zero,t1
+		jal ra,cos	#nach aufruf von cos, Wert in ao.	
+		#Radius in float.
+		fcvt.s.w fa4,a4
+		#cos in float
+		fmv.s.x fa0,a0
+		fmul.s fs1,fa4,fa0	#s1 = float x = radius * cos(alpha)
+	
+		#float y = radius × sin(α)
+		jal ra,sin	#nach aufruf von sin, Wert in ao.
+		fmv.s.x fa0,a0	
+		fmul.s fs2,fa4,fa0	#s2 = float x = radius * sin(alpha)
+		#a1 wider herstellen aus s11
+		add a1,zero,s11
+		
+		
+		fcvt.s.w fa1,a1
+		# t3 = xc + x
+		fadd.s ft3,fa1,fs1	# a1 = xc, s1 = float x
+		# t4 = xc - x
+		fsub.s ft4,fa1,fs1	# a1 = xc, s1 = float x
+		
+		fcvt.s.w fa2,a2
+		# t5 = yc + y
+		fadd.s ft5,fa2,fs2	#a2 = yc, s2 = float y
+		# t6 = yc - y
+		fsub.s ft6,fa2,fs2	#a2 = yc, s2 = float y
+		
+		#callerSave a1,a2
+		addi sp,sp,-16	#stackspeicher bereitstellen
+		sw a1,8(sp)	#a1 im Stack speichern
+		sw a2,0(sp)	#a2 im Stack speichern
+		
+		#draw_pixel(xc + x, yc + y, color);
+		
+		fcvt.w.s a1,ft3
+		
+		#add a2,zero,ft5	#a2 = yc + y = t5	
+		fcvt.w.s a2,ft5
+		#Funktionsaufruf draw_pixel
+		jal ra,draw_pixel 
+		
+		#draw_pixel(xc − x, yc + y, color);
+		#add a1,zero,t4	#a1 = xc - x = t4
+		fcvt.w.s a1,ft4
+		#Wert von a2 stimmt bereits überein
+		#Funktionsaufruf draw_pixel
+		jal ra,draw_pixel 
+		
+		#draw_pixel(xc + x, yc − y, color);
+		#add a1,zero,t3	#a1 = xc + x = t3
+		fcvt.w.s a1,ft3
+		#add a2,zero,t6 	#a2 = yc - y = t6
+		fcvt.w.s a2,ft6
+		#Funktionsaufruf draw_pixel
+		jal ra,draw_pixel 
+		
+		#draw_pixel(xc − x, yc − y, color);
+		#add a1,zero,t4	#a1 = xc - x = t4
+		fcvt.w.s a1,ft4
+		#add a2,zero,t6 	#a2 = yc - y = t6
+		fcvt.w.s a2,ft6
+		#Funktionsaufruf draw_pixel
+		jal ra,draw_pixel 
+		
+		#callerRestore a1,a2
+		lw a1,0(sp)	#a1 im Stack speichern
+		lw a2,8(sp)	#a2 im Stack speichern
+		addi sp,sp,16	#stackspeicher freistellen
+		
+		#Alpha Inkrement
+		addi t1,t1,1	#alpha++
+		
+		beq zero,zero,Circle_float_loop
+		
+		
+	
 sin:
 #Beim Aufrufen dieser Funktion werden alle temp und save Register in den Stack gespeichert. In den Test Dateien findet kein caller save 
 #statt, somit muss ein callee save ausgeführt werden. 
 
 ## Preserve saved registers: t0-t6 und s0-s11 -> 19 Register -> 19 * 8 =  152
+#ra speichern
+add s10,zero,ra
 jal ra,calleSave
 
 # Input
@@ -85,7 +159,7 @@ jal ra,calleSave
 	la t0,.sin_lookup 	#Adresse von .sin_lookup in t0 speichern 
 	#Alle 4 Bit liegt ein neuer Sin() wert im Datasegment. Somit muss der Wert im Register a1 mit 4 multipliziert werden.
 	#Multiplikation mit 4 ist das selbe wie ein Bitshift um 2 nach links. 
-	slli t1,a1,2	#a1 << 2 -> a1 * 4, Speichern in t1
+	slli t1,a1,2	#a1 << 2 -> a1 * 4, Speichern in t1 (Optimierung)
 	#Der Wert an der Adresse wird ins Register a0 gespeichert. 
 	
 	#erzeugen der richtigen Adresse
@@ -95,10 +169,16 @@ jal ra,calleSave
 #Funktion ist abgeschlossen, somit muss das Register wider aus dem Stack restort werden.
 jal ra,calleRestore
 
+add ra,zero,s10
+jr ra
+
+
 cos:
 #Siehe Kommentar calleeSave sin: 
 
 # Preserve saved registers: t0-t6 und s0-s11 -> 19 Register -> 19 * 8 =  152
+#Zwischenspeichern ra
+add s10,zero,ra
 jal ra,calleSave
 
 # Input
@@ -113,14 +193,17 @@ jal ra,calleSave
 	la t0,.sin_lookup 	#Adresse von .sin_lookup in t0 speichern 
 	
 	#cos(α) = sin(90 − α)
-		li t0,90	#t0 = 90
-		sub t1,t0,a1	#t1 = 90 - α
+		li t3,90	#t0 = 90
+		sub t1,t3,a1	#t1 = 90 - α
 	 
 	slli t1,t1,2	#a1 << 2 -> a1 * 4, Speichern in t1
 	#Der Wert an der Adresse wird ins Register a0 gespeichert. 
 	add t2,t0,t1
 	lw a0,(t2)
+jal ra,calleRestore
 
+add ra,zero,s10
+jr ra #Zurück zurück circle-Float
 
 #############################################
 # Do not remove the include below
@@ -129,7 +212,7 @@ jal ra,calleSave
 #############################################
 calleSave:
 	addi sp,sp, -160
-	sw, ra, 152(sp)
+	
 	sw, t0, 144(sp)
 	sw, t1, 136(sp)
 	sw, t2, 128(sp)
@@ -161,7 +244,7 @@ calleRestore:
 	lw, s7, 32(sp)
 	lw, s6, 40(sp)
 	lw, s5, 48(sp)
-	lw, s4, 46(sp)
+	lw, s4, 56(sp)
 	lw, s3, 64(sp)
 	lw, s2, 72(sp)
 	lw, s1, 80(sp)
@@ -173,7 +256,7 @@ calleRestore:
 	lw, t2, 128(sp)
 	lw, t1, 136(sp)
 	lw, t0, 144(sp)
-	lw ra,152(sp)
+	
 	addi sp,sp,160
 	
 	jr ra

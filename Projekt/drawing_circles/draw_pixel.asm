@@ -26,8 +26,11 @@ draw_pixel:
 # Outputs: None
 	#TODO Task 1.3
 	
-	la t1,display_base_address
-	addi t0,t0, 0xFF
+	
+	
+	
+	la s9,display_base_address
+	addi t0,zero, 0xFF
 	
 	# DISBPLAY_BASE_ADDRESS + (y * IMAGE_WIDTH) + x
 		#y*IMAGE_WIDTH
@@ -36,7 +39,7 @@ draw_pixel:
 		slli t3,t3,2	# * 4 Aufgrund der Adressen
 		slli t4,a1,2	# x * 4 
 		add t3,t3,t4	#(y * IMAGE_WIDTH) + x
-		add t3,t3,t1
+		add t3,t3,s9
 		
 		sw t0,(t3)
 		
