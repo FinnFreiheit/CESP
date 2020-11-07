@@ -30,7 +30,7 @@ draw_pixel:
 	
 	
 	la s9,display_base_address
-	addi t0,zero, 0xFF
+	
 	
 	# DISBPLAY_BASE_ADDRESS + (y * IMAGE_WIDTH) + x
 		#y*IMAGE_WIDTH
@@ -41,7 +41,7 @@ draw_pixel:
 		add t3,t3,t4	#(y * IMAGE_WIDTH) + x
 		add t3,t3,s9
 		
-		sw t0,(t3)
+		sw a3,(t3)
 		
 	
 	

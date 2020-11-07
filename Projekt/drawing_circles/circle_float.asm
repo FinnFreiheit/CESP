@@ -23,15 +23,29 @@
 
 .text
 
-li a1, 30
-li a2, 30
-li, a4, 19
-li a3, 0x00ff00
-jal circle_float
+
+
 
 main_float:
 
-	
+li a1, 30
+li a2, 30
+li, a4, 19
+li a3, 0x0000ff
+jal circle_float
+
+li a1, 128
+li a2, 128
+li, a4, 25
+li a3, 0x00ff00
+jal circle_float
+
+li a1, 128
+li a2, 128
+li, a4, 30
+li a3, 0xffffff
+jal circle_float
+
 	
 	# Exit
 	li a0, 0
@@ -46,14 +60,15 @@ circle_float:
 # a3: color
 # a4: radius in pixels
 	#TODO Task 1.4
+	add s7,zero,ra
 	jal ra,calleSave
 	
-	li t2,90	#t2 = 90
+	li s6,90	#t2 = 90
 	li t1,0 	#Alpha = 0
 
 	#for(int α=0; α≤90;α++)
 	Circle_float_loop:
-		bgt t1,t2,main_float
+		bgt t1,s6,endCircle
 		
 		#float x = radius × cos(α)
 		#a1 zwischenspeichern in s11
@@ -125,8 +140,8 @@ circle_float:
 		jal ra,draw_pixel 
 		
 		#callerRestore a1,a2
-		lw a1,0(sp)	#a1 im Stack speichern
-		lw a2,8(sp)	#a2 im Stack speichern
+		lw a2,0(sp)	#a1 im Stack speichern
+		lw a1,8(sp)	#a2 im Stack speichern
 		addi sp,sp,16	#stackspeicher freistellen
 		
 		#Alpha Inkrement
@@ -134,7 +149,9 @@ circle_float:
 		
 		beq zero,zero,Circle_float_loop
 		
-		
+endCircle:
+add ra,zero,s7
+jr ra	
 	
 sin:
 #Beim Aufrufen dieser Funktion werden alle temp und save Register in den Stack gespeichert. In den Test Dateien findet kein caller save 
@@ -208,54 +225,54 @@ jr ra #Zurück zurück circle-Float
 #############################################
 # Do not remove the include below
 .include "draw_pixel.asm" # Copies content of draw_pixel.asm here
-
+jr ra
 #############################################
 calleSave:
 	addi sp,sp, -160
 	
-	sw, t0, 144(sp)
-	sw, t1, 136(sp)
-	sw, t2, 128(sp)
-	sw, t3, 120(sp)
-	sw, t4, 112(sp)
-	sw, t5, 104(sp)
-	sw, t6, 96(sp)
-	sw, s0, 88(sp)
-	sw, s1, 80(sp)
-	sw, s2, 72(sp)
-	sw, s3, 64(sp)
-	sw, s4, 56(sp)
-	sw, s5, 48(sp)
-	sw, s6, 40(sp)
-	sw, s7, 32(sp)
-	sw, s8, 24(sp)
-	sw, s9, 16(sp)
-	sw, s10, 8(sp)
-	sw, s11, 0(sp)
-	
+	sw t0, 144(sp)
+	sw t1, 136(sp)
+	sw t2, 128(sp)
+	sw t3, 120(sp)
+	sw t4, 112(sp)
+	sw t5, 104(sp)
+	sw t6, 96(sp)
+	sw s0, 88(sp)
+	sw s1, 80(sp)
+	sw s2, 72(sp)
+	sw s3, 64(sp)
+	sw s4, 56(sp)
+	sw s5, 48(sp)
+	sw s6, 40(sp)
+	sw s7, 32(sp)
+	sw s8, 24(sp)
+	sw s9, 16(sp)
+	sw s10, 8(sp)
+	sw s11, 0(sp)
+
 	jr ra
 
 calleRestore:
 	
-	lw, s11, 0(sp)
-	lw, s10, 8(sp)
-	lw, s9, 16(sp)
-	lw, s8, 24(sp)
-	lw, s7, 32(sp)
-	lw, s6, 40(sp)
-	lw, s5, 48(sp)
-	lw, s4, 56(sp)
-	lw, s3, 64(sp)
-	lw, s2, 72(sp)
-	lw, s1, 80(sp)
-	lw, s0, 88(sp)
-	lw, t6, 96(sp)
-	lw, t5, 104(sp)
-	lw, t4, 112(sp)
-	lw, t3, 120(sp)
-	lw, t2, 128(sp)
-	lw, t1, 136(sp)
-	lw, t0, 144(sp)
+	lw s11, 0(sp)
+	lw s10, 8(sp)
+	lw s9, 16(sp)
+	lw s8, 24(sp)
+	lw s7, 32(sp)
+	lw s6, 40(sp)
+	lw s5, 48(sp)
+	lw s4, 56(sp)
+	lw s3, 64(sp)
+	lw s2, 72(sp)
+	lw s1, 80(sp)
+	lw s0, 88(sp)
+	lw t6, 96(sp)
+	lw t5, 104(sp)
+	lw t4, 112(sp)
+	lw t3, 120(sp)
+	lw t2, 128(sp)
+	lw t1, 136(sp)
+	lw t0, 144(sp)
 	
 	addi sp,sp,160
 	
