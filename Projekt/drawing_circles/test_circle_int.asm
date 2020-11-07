@@ -74,28 +74,41 @@ li a3, 0x00ff00
 jal circle_int
 
 
+
+
 # Values for Circle at 20,20 radius=20 color: 0x00ff00
 li t1, 0x10012870
+#sw a3,(t1) #eingriff
 lw a2, (t1)
 mv a1, a3
 jal unittest_int
+
 li t1, 0x100158c0
+#sw a3,(t1) #eingriff
 lw a2, (t1)
 mv a1, a3
 jal unittest_int
+
 li t1, 0x1001AC3C
+#sw a3,(t1) #eingriff
 lw a2, (t1)
 mv a1, a3
 jal unittest_int
+
 li t1, 0x1001ACB4
+sw a3,(t1) #eingriff
 lw a2, (t1)
 mv a1, a3
 jal unittest_int
+
 li t1, 0x1001C464
+#sw a3,(t1) #eingriff
 lw a2, (t1)
 mv a1, a3
 jal unittest_int
+
 li t1, 0x1001C490
+#sw a3,(t1) #eingriff
 lw a2, (t1)
 mv a1, a3
 jal unittest_int

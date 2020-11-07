@@ -26,8 +26,12 @@ draw_pixel:
 # Outputs: None
 	#TODO Task 1.3
 	
-	
-	
+	#Callee Save
+	addi sp,sp,-32
+	sw t2,24(sp)
+	sw t3,16(sp)
+	sw t4,8(sp)
+	sw s9,0(sp)
 	
 	la s9,display_base_address
 	
@@ -43,7 +47,12 @@ draw_pixel:
 		
 		sw a3,(t3)
 		
-	
+	#Callee Restore
+	lw s9,0(sp)
+	lw t4,8(sp)
+	lw t3,16(sp)
+	lw t2,24(sp)
+	addi sp,sp,32
 	
 	
 	

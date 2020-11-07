@@ -60,8 +60,9 @@ circle_float:
 # a3: color
 # a4: radius in pixels
 	#TODO Task 1.4
+	
 	add s7,zero,ra
-	jal ra,calleSave
+	
 	
 	li s6,90	#t2 = 90
 	li t1,0 	#Alpha = 0
