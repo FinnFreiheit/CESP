@@ -83,13 +83,13 @@ lw a2, (t1)
 mv a1, a3
 jal unittest_int
 
-li t1, 0x100158c0 
+li t1, 0x100158c0
 #sw a3,(t1) #eingriff
 lw a2, (t1)
 mv a1, a3
 jal unittest_int
 
-li t1, 0x1001AC3C ##################################################################
+li t1, 0x1001AC3C
 #sw a3,(t1) #eingriff
 lw a2, (t1)
 mv a1, a3

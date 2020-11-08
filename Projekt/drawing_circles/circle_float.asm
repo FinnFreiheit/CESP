@@ -41,24 +41,23 @@ circle_float:
 # a2: yc coordinate
 # a3: color
 # a4: radius in pixels
- 
-
-
+	#TODO Task 1.4
+	
 	add s7,zero,ra
 	
 	
 	li s6,90	#t2 = 90
-	li t1,0 	#Alpha = 0
+	li s1,0 	#Alpha = 0
 
 	#for(int α=0; α≤90;α++)
 	Circle_float_loop:
-		bgt t1,s6,endCircle
+		bgt s1,s6,endCircle
 		
 		#float x = radius × cos(α)
 		#a1 zwischenspeichern in s11
 		add s11,zero,a1
 		#a1 = t1, für den cos aufruf.
-		add a1,zero,t1
+		add a1,zero,s1
 		jal ra,cos	#nach aufruf von cos, Wert in ao.	
 		#Radius in float.
 		fcvt.s.w fa4,a4
@@ -75,15 +74,15 @@ circle_float:
 		
 		fcvt.s.w fa1,a1
 		# t3 = xc + x
-		fadd.s ft3,fa1,fs1	# a1 = xc, s1 = float x
+		fadd.s fs3,fa1,fs1	# a1 = xc, s1 = float x
 		# t4 = xc - x
-		fsub.s ft4,fa1,fs1	# a1 = xc, s1 = float x
+		fsub.s fs4,fa1,fs1	# a1 = xc, s1 = float x
 		
 		fcvt.s.w fa2,a2
 		# t5 = yc + y
-		fadd.s ft5,fa2,fs2	#a2 = yc, s2 = float y
+		fadd.s fs5,fa2,fs2	#a2 = yc, s2 = float y
 		# t6 = yc - y
-		fsub.s ft6,fa2,fs2	#a2 = yc, s2 = float y
+		fsub.s fs6,fa2,fs2	#a2 = yc, s2 = float y
 		
 		#callerSave a1,a2
 		addi sp,sp,-16	#stackspeicher bereitstellen
@@ -92,33 +91,33 @@ circle_float:
 		
 		#draw_pixel(xc + x, yc + y, color);
 		
-		fcvt.w.s a1,ft3
+		fcvt.w.s a1,fs3
 		
-		#add a2,zero,ft5	#a2 = yc + y = t5	
-		fcvt.w.s a2,ft5
+		#add a2,zero,fs5	#a2 = yc + y = t5	
+		fcvt.w.s a2,fs5
 		#Funktionsaufruf draw_pixel
 		jal ra,draw_pixel 
 		
 		#draw_pixel(xc − x, yc + y, color);
 		#add a1,zero,t4	#a1 = xc - x = t4
-		fcvt.w.s a1,ft4
+		fcvt.w.s a1,fs4
 		#Wert von a2 stimmt bereits überein
 		#Funktionsaufruf draw_pixel
 		jal ra,draw_pixel 
 		
 		#draw_pixel(xc + x, yc − y, color);
 		#add a1,zero,t3	#a1 = xc + x = t3
-		fcvt.w.s a1,ft3
+		fcvt.w.s a1,fs3
 		#add a2,zero,t6 	#a2 = yc - y = t6
-		fcvt.w.s a2,ft6
+		fcvt.w.s a2,fs6
 		#Funktionsaufruf draw_pixel
 		jal ra,draw_pixel 
 		
 		#draw_pixel(xc − x, yc − y, color);
 		#add a1,zero,t4	#a1 = xc - x = t4
-		fcvt.w.s a1,ft4
+		fcvt.w.s a1,fs4
 		#add a2,zero,t6 	#a2 = yc - y = t6
-		fcvt.w.s a2,ft6
+		fcvt.w.s a2,fs6
 		#Funktionsaufruf draw_pixel
 		jal ra,draw_pixel 
 		
@@ -128,7 +127,7 @@ circle_float:
 		addi sp,sp,16	#stackspeicher freistellen
 		
 		#Alpha Inkrement
-		addi t1,t1,1	#alpha++
+		addi s1,s1,1	#alpha++
 		
 		beq zero,zero,Circle_float_loop
 		
@@ -137,26 +136,12 @@ add ra,zero,s7
 jr ra	
 	
 sin:
-#Beim Aufrufen dieser Funktion werden alle temp und save Register in den Stack gespeichert. In den Test Dateien findet kein caller save 
-#statt, somit muss ein callee save ausgeführt werden. 
-
-## Preserve saved registers: t0-t6 und s0-s11 -> 19 Register -> 19 * 8 =  152
-#callee save
-addi sp,sp,-24	
-sw t0, 16(sp)
-sw t1, 8(sp)
-sw t2, 0(sp)
-	
-
-
 # Input
 #-------------------
 # a1: angle in degree (values between 0 and 90 degree are possible)
 #
 # Ouput:
 # la0: sin(a1)
-
-	#TODO Task 1.1
 	#Die ergebnisse der Sinusberechnungen sind in der asm Datei "sinlut" hinterlegt. Durch .include sinlut.asm im .Data bereich,
 	#werden alle sinusergebniss geladen. Um auf die werte zuzugreifen, wird die Adresse von dem Label .sin_lookup in das Register 
 	#gespeichert. 
@@ -169,30 +154,13 @@ sw t2, 0(sp)
 	#erzeugen der richtigen Adresse
 	add t2,t0,t1
 	lw a0,(t2)
-
-#Funktion ist abgeschlossen, somit muss das Register wider aus dem Stack restort werden.
 	
-lw t0, 16(sp)
-lw t1, 8(sp)
-lw t2, 0(sp)
-addi sp,sp,24
-
 fmv.s.x fa0,a0	
 
 jr ra
 
 
 cos:
-#Siehe Kommentar calleeSave sin: 
-
-# Preserve saved registers: t0-t6 und s0-s11 -> 19 Register -> 19 * 8 =  152
-#callee save
-addi sp,sp,-32
-sw t3, 24(sp)	
-sw t0, 16(sp)
-sw t1, 8(sp)
-sw t2, 0(sp)
-
 # Input
 #-------------------
 # a1: angle in degree (values between 0 and 90 degree are possible)
@@ -213,13 +181,6 @@ sw t2, 0(sp)
 	add t2,t0,t1
 	lw a0,(t2)
 	
-#Vom Stack holen
-lw t3,24(sp)	
-lw t0, 16(sp)
-lw t1, 8(sp)
-lw t2, 0(sp)
-addi sp,sp,32
-
 #cos in float
 fmv.s.x fa0,a0
 		
