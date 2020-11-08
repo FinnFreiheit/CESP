@@ -18,7 +18,6 @@
 
 .include "display_base_address.asm"  # Copies the content of display_base_address.asm here
 .include "sinlut.asm"                # Copies the content of sinlut.asm here
-
 .globl sin
 .globl cos
 
@@ -28,6 +27,25 @@
 
 
 main_float:
+
+li a1, 30
+li a2, 30
+li, a4, 19
+li a3, 0x0000ff
+jal circle_float
+
+li a1, 128
+li a2, 128
+li, a4, 25
+li a3, 0x00ff00
+jal circle_float
+
+li a1, 128
+li a2, 128
+li, a4, 30
+li a3, 0xffffff
+jal circle_float
+
 	
 	# Exit
 	li a0, 0
@@ -61,12 +79,13 @@ circle_float:
 		jal ra,cos	#nach aufruf von cos, Wert in ao.	
 		#Radius in float.
 		fcvt.s.w fa4,a4
-		
+		#cos in float
+		fmv.s.x fa0,a0
 		fmul.s fs1,fa4,fa0	#s1 = float x = radius * cos(alpha)
 	
 		#float y = radius × sin(α)
 		jal ra,sin	#nach aufruf von sin, Wert in ao.
-		
+		fmv.s.x fa0,a0	
 		fmul.s fs2,fa4,fa0	#s2 = float x = radius * sin(alpha)
 		#a1 wider herstellen aus s11
 		add a1,zero,s11
@@ -140,13 +159,9 @@ sin:
 #statt, somit muss ein callee save ausgeführt werden. 
 
 ## Preserve saved registers: t0-t6 und s0-s11 -> 19 Register -> 19 * 8 =  152
-#callee save
-addi sp,sp,-24	
-sw t0, 16(sp)
-sw t1, 8(sp)
-sw t2, 0(sp)
-	
-
+#ra speichern
+add s10,zero,ra
+jal ra,calleSave
 
 # Input
 #-------------------
@@ -170,14 +185,9 @@ sw t2, 0(sp)
 	lw a0,(t2)
 
 #Funktion ist abgeschlossen, somit muss das Register wider aus dem Stack restort werden.
-	
-lw t0, 16(sp)
-lw t1, 8(sp)
-lw t2, 0(sp)
-addi sp,sp,24
+jal ra,calleRestore
 
-fmv.s.x fa0,a0	
-
+add ra,zero,s10
 jr ra
 
 
@@ -185,12 +195,9 @@ cos:
 #Siehe Kommentar calleeSave sin: 
 
 # Preserve saved registers: t0-t6 und s0-s11 -> 19 Register -> 19 * 8 =  152
-#callee save
-addi sp,sp,-32
-sw t3, 24(sp)	
-sw t0, 16(sp)
-sw t1, 8(sp)
-sw t2, 0(sp)
+#Zwischenspeichern ra
+add s10,zero,ra
+jal ra,calleSave
 
 # Input
 #-------------------
@@ -211,17 +218,9 @@ sw t2, 0(sp)
 	#Der Wert an der Adresse wird ins Register a0 gespeichert. 
 	add t2,t0,t1
 	lw a0,(t2)
-	
-#Vom Stack holen
-lw t3,24(sp)	
-lw t0, 16(sp)
-lw t1, 8(sp)
-lw t2, 0(sp)
-addi sp,sp,32
+jal ra,calleRestore
 
-#cos in float
-fmv.s.x fa0,a0
-		
+add ra,zero,s10
 jr ra #Zurück zurück circle-Float
 
 #############################################
@@ -229,5 +228,56 @@ jr ra #Zurück zurück circle-Float
 .include "draw_pixel.asm" # Copies content of draw_pixel.asm here
 jr ra
 #############################################
+calleSave:
+	addi sp,sp, -160
+	
+	sw t0, 144(sp)
+	sw t1, 136(sp)
+	sw t2, 128(sp)
+	sw t3, 120(sp)
+	sw t4, 112(sp)
+	sw t5, 104(sp)
+	sw t6, 96(sp)
+	sw s0, 88(sp)
+	sw s1, 80(sp)
+	sw s2, 72(sp)
+	sw s3, 64(sp)
+	sw s4, 56(sp)
+	sw s5, 48(sp)
+	sw s6, 40(sp)
+	sw s7, 32(sp)
+	sw s8, 24(sp)
+	sw s9, 16(sp)
+	sw s10, 8(sp)
+	sw s11, 0(sp)
 
+	jr ra
 
+calleRestore:
+	
+	lw s11, 0(sp)
+	lw s10, 8(sp)
+	lw s9, 16(sp)
+	lw s8, 24(sp)
+	lw s7, 32(sp)
+	lw s6, 40(sp)
+	lw s5, 48(sp)
+	lw s4, 56(sp)
+	lw s3, 64(sp)
+	lw s2, 72(sp)
+	lw s1, 80(sp)
+	lw s0, 88(sp)
+	lw t6, 96(sp)
+	lw t5, 104(sp)
+	lw t4, 112(sp)
+	lw t3, 120(sp)
+	lw t2, 128(sp)
+	lw t1, 136(sp)
+	lw t0, 144(sp)
+	
+	addi sp,sp,160
+	
+	jr ra
+	
+	
+	

@@ -101,7 +101,7 @@ jal cos
 li a1, 0x3f7fd814
 fmv.s.x fa1, a1
 fmv.s.x fa2, zero
-fadd.s fa2, fa2, fa0
+fadd.s fa2, fa2, fa0 #cos(2.000000)=0.999391 
 jal unittest_float
 
 
