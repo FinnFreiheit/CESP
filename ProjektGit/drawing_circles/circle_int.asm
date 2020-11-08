@@ -31,12 +31,11 @@ circle_int:
 # Inputs
 #------------------
 # a1: x coordinate
+add s11,zero,a1
 # a2: y coordinate
+add s10,zero,a2
 # a3: color
 # a4: radius in pixels
-
-# Funktionsparameter bestimmt.
-
 add t6,zero,ra
 #d = -radius;
 sub s1,zero,a4
@@ -65,66 +64,69 @@ bge   s3,s2,endXY
 		#x = x - 1;
 		addi s2,s2,-1
 	endIF:
-	#xc + x = s11
-	add s11,a1,s2
-	#yc + y = s10
-	add s10,a2,s3
-	#xc -x = s9
-	sub s9,a1,s2
-	#yc - y = s8
-	sub s8,a2,s3
-	
-	#xc + y = s7
-	add s7,a1,s3
-	#yc + x = s6
-	add s6,a2,s2
-	#xc - y = s5
-	sub s5,a1,s3
-	#yc - x = s4
-	sub s4,a2,s2
-	
-	#callerSave a1,a2
-		addi sp,sp,-16	#stackspeicher bereitstellen
-		sw a1,8(sp)	#a1 im Stack speichern
-		sw a2,0(sp)	#a2 im Stack speichern
 	
 	#draw_pixel(xc + x, yc + y, color);
-	add a1,zero,s11
-	add a2,zero,s10
+	#xc + x = 
+	add a1,s11,s2
+	#yc + y = s10
+	add a2,s10,s3
 	jal ra,draw_pixel
+	
 	#draw_pixel(xc − x, yc + y, color);
-	add a1,zero,s9
+	#add a1,zero,s9
 	#add a2,zero,s10 #UN
+	#xc -x = s9
+	sub a1,s11,s2
 	jal ra,draw_pixel
+	
 	#draw_pixel(xc − x, yc − y, color); 
-	#add a1,zero,s9 
-	add a2,zero,s8
+	#add a1,zero,s9 #UN
+	#add a2,zero,s8
+	#yc - y = s8
+	sub a2,s10,s3
 	jal ra,draw_pixel
+	
 	#draw_pixel(xc + x, yc − y, color);
-	add a1,zero,s11
+	#add a1,zero,s11
 	#add a2,zero,s8 #UN
+	#xc + x = s11
+	add a1,s11,s2
 	jal ra,draw_pixel
+	
 	#draw_pixel(xc + y, yc + x, color);
-	add a1,zero,s7
-	add a2,zero,s6
+	#add a1,zero,s7
+	#add a2,zero,s6
+	#xc + y = s7
+	add a1,s11,s3
+	#yc + x = s6
+	add a2,s10,s2
 	jal ra,draw_pixel
+	
 	#draw_pixel(xc − y, yc + x, color);
-	add a1,zero,s5
+	#add a1,zero,s5
 	#add a2,zero,s6 #UN
+	#xc - y = s5
+	sub a1,s11,s3
 	jal ra,draw_pixel
+	
 	#draw_pixel(xc − y, yc − x, color);
 	#add a1,zero,s5 #UN
-	add a2,zero,s4
+	#add a2,zero,s4
+	#yc - x = s4
+	sub a2,s10,s2
 	jal ra,draw_pixel
+	
 	#draw_pixel(xc + y, yc − x, color);
-	add a1,zero,s7
+	#add a1,zero,s7
 	#add a2,zero,s4 #UN
+	#xc + y = s7
+	add a1,s11,s3
 	jal ra,draw_pixel
 	
 	#callerRestore a1,a2
-		lw a2,0(sp)	#a1 im Stack speichern
-		lw a1,8(sp)	#a2 im Stack speichern
-		addi sp,sp,16	#stackspeicher freistellen
+		#lw a2,0(sp)	#a1 im Stack speichern
+		#lw a1,8(sp)	#a2 im Stack speichern
+		#addi sp,sp,16	#stackspeicher freistellen
 	
 beq zero,zero,loopYX
 

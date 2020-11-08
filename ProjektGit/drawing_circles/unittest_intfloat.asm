@@ -14,112 +14,67 @@
 ###############################
 
 
+.globl unittest_int
+.globl unittest_float
 
-j main_test
-.include "circle_int.asm"
-.include "unittest_intfloat.asm"
+.data
 
-
-main_test:
-
-#####################################
-#   DRAW Markers in each corner
-#####################################
-
-li a1, 1
-li a2, 1
-li a3, 0xffff00
-jal draw_pixel
-
-li a1, 254
-li a2, 1
-li a3, 0xffff00
-jal draw_pixel
-
-li a1, 1
-li a2, 254
-li a3, 0xffff00
-jal draw_pixel
-
-li a1, 254
-li a2, 254
-li a3, 0xffff00
-jal draw_pixel
+test_passed:
+	.string "Test passed    \n"
+test_not_passed:
+	.string "Test NOT passed\n"
 
 
-############################
-#   DRAW CIRCLE INT
-############################
+.text
 
+unittest_int:
+# Input
+# -----------------------
+#   a1 : actual result
+#   a2 : expected result
 
-#Test if the following addresses are set as circumference of the circle
+# Output
+# -----------------------
+#   None
 
+	beq  a1,a2, _passed
+	la a1, test_not_passed # use string stored @ label test_not_passed
+	j _print
+	_passed:
+	la a1, test_passed
 
-li a1, 30
-li a2, 30
-li, a4, 19
-li a3, 0x00ff00
-jal circle_int
-
-li a1, 30
-li a2, 30
-li, a4, 20
-li a3, 0x00ff00
-jal circle_int
-
-li a1, 30
-li a2, 30
-li, a4, 21
-li a3, 0x00ff00
-jal circle_int
+	_print:
+	li  a0, 1      # 1 = StdOut
+        li  a2, 16     # length of  string
+        li  a7, 64     # linux write system call
+        ecall          # Call linux to output the string
 
 
 
-
-# Values for Circle at 20,20 radius=20 color: 0x00ff00
-li t1, 0x10012870
-#sw a3,(t1) #eingriff
-lw a2, (t1)
-mv a1, a3
-jal unittest_int
-
-li t1, 0x100158c0 
-#sw a3,(t1) #eingriff
-lw a2, (t1)
-mv a1, a3
-jal unittest_int
-
-li t1, 0x1001AC3C ##################################################################
-#sw a3,(t1) #eingriff
-lw a2, (t1)
-mv a1, a3
-jal unittest_int
-
-li t1, 0x1001ACB4
-sw a3,(t1) #eingriff
-lw a2, (t1)
-mv a1, a3
-jal unittest_int
-
-li t1, 0x1001C464
-#sw a3,(t1) #eingriff
-lw a2, (t1)
-mv a1, a3
-jal unittest_int
-
-li t1, 0x1001C490
-#sw a3,(t1) #eingriff
-lw a2, (t1)
-mv a1, a3
-jal unittest_int
+	ret
 
 
-# Exit
-li a0, 0
-li a7, 93
-ecall
 
-# Exit
-li a0, 0
-li a7, 93
-ecall
+unittest_float:
+# Input
+# -----------------------
+#   fa1 : actual result
+#   fa2 : expected result
+
+# Output
+# -----------------------
+#   None
+	feq.s t0, fa1, fa2
+	bne  t0, zero, _passed_float
+	la a1, test_not_passed # use string stored @ label test_not_passed
+	j _print_float
+	_passed_float:
+	la a1, test_passed
+
+	_print_float:
+	li  a0, 1      # 1 = StdOut
+        li  a2, 16     # length of  string
+        li  a7, 64     # linux write system call
+        ecall          # Call linux to output the string
+
+	ret
